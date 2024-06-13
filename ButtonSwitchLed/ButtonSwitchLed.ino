@@ -4,23 +4,25 @@
   (NOTE) This could be done with interruption mechanism, but I decided to use good old while loops
 */
 
-// This pin is chosen because pins 2 and 3 also serve as external inturrupt inputs.
+// Include local button library
+#include "Button.h"
+
 const int buttonPin = 2; 
 const int ledPin = 8; 
 
-// Initially, the LED is off
-int ledState = HIGH; 
-int buttonState = HIGH;
+// Initially, the LED is off.
+int ledState = HIGH;
+
+// Filter time is 2ms * delayTime.
+const int delayTime = 20;
+Button button(buttonPin, delayTime);
 
 
 void setup() 
 {
 
   pinMode(ledPin, OUTPUT); 
-  // Turn off the target LED
-  digitalWrite(ledPin, ledState); 
-  
-  // The pull-up resistor is in the circuit
+  digitalWrite(ledPin, ledState);
   pinMode(buttonPin, INPUT_PULLUP); 
 
 }
@@ -28,19 +30,15 @@ void setup()
 void loop() 
 {
 
-  // Wait for button to be pressed
-  while(digitalRead(buttonPin) == buttonState) {}
-  
-  // Turn the LED on/off
-  ledState = !ledState;
-  digitalWrite(ledPin, ledState);
+  button.scanState();
 
-  // Mark that button was pressed
-  buttonState = !buttonState;
+  // Check if button moves from HIGH to LOW
+  if (button.flagClick == true)
+  {
+      // Turn the LED on/off
+      ledState = !ledState;
+      digitalWrite(ledPin, ledState);
+      button.flagClick = false;
+  }
   
-  // Wait for button to be pressed
-  while(digitalRead(buttonPin) == buttonState) {}
-
-  // Mark that button was released
-  buttonState = !buttonState;
 }
