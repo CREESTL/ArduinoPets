@@ -2,11 +2,14 @@
 const int buttonPin = 2;
 
 // Time each LED is on.
-const int flashTime = 500;
+const int flashTime = 1000;
 
 // Pins that must light up.
 const int minPin = 3;
 const int maxPin = 8;
+
+// Last recorded time
+unsigned int lastTime = 0;
 
 // Initially, the light runs from the lowest pinID to the highest.
 volatile int runStart = minPin;
@@ -56,8 +59,16 @@ void loop()
   // Run light in a given direction.
   for (int pin = runStart; pin != runEnd; pin += step)
   {
+    // Record current time
+    lastTime = millis();
+
+    // Turn the LED on
     digitalWrite(pin, LOW);
-    delay(flashTime);
+
+    // Wait...
+    while(millis() - lastTime < flashTime) {}
+
+    // Turn the LED off
     digitalWrite(pin, HIGH);
   }
 }
