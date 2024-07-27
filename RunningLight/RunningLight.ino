@@ -2,20 +2,22 @@
 const int buttonPin = 2;
 
 // Time each LED is on.
-const int flashTime = 1000;
+const int flashTime = 200;
+
+// Time when current LED was turned on
+unsigned int timeTurnedOn = 0;
 
 // Pins that must light up.
 const int minPin = 3;
 const int maxPin = 8;
-
-// Last recorded time
-unsigned int lastTime = 0;
 
 // Initially, the light runs from the lowest pinID to the highest.
 volatile int runStart = minPin;
 volatile int runEnd = maxPin + 1;
 volatile int step = 1;
 
+// Current pin
+unsigned short pin = runStart;
 
 // Changes the direction of light movement.
 void pinISR()
@@ -32,7 +34,6 @@ void pinISR()
     runStart = minPin;
     runEnd = maxPin + 1;
   }
-
 }
 
 
@@ -56,20 +57,39 @@ void setup()
 
 void loop()
 {
-  // Run light in a given direction.
-  for (int pin = runStart; pin != runEnd; pin += step)
+
+  // Turn one LED on
+  if (timeTurnedOn == 0)
   {
-    // Record current time
-    lastTime = millis();
-
-    // Turn the LED on
+    // Turn one LED on
     digitalWrite(pin, LOW);
-
-    // Wait...
-    while(millis() - lastTime < flashTime) {}
-
-    // Turn the LED off
-    digitalWrite(pin, HIGH);
+    timeTurnedOn = millis();
+    
   }
+
+  // DO ANYTHING HERE...
+
+  int currentTime = millis();
+  int timePassed = currentTime - timeTurnedOn;
+
+  // Wait some time with one LED on
+  if (timePassed > flashTime)
+  {
+    // Turn one LED off
+    digitalWrite(pin, HIGH);
+    
+    // Move to next pin
+    pin += step;
+
+    // Reset the turn on time
+    timeTurnedOn = 0;
+  }
+  
+  // Restart the loop
+  if (pin == runEnd)
+  {
+      pin = runStart;
+  }
+
 }
 
